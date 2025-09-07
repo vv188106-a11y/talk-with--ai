@@ -1,0 +1,225 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Freelancer Portal | Simple Invoicing & Client Dashboard</title>
+  <style>
+    /* Base Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      background: #f9f9f9;
+      color: #333;
+    }
+
+    a {
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      background: #222;
+      color: white;
+      padding: 1.2rem 0;
+    }
+
+    header h1 {
+      float: left;
+    }
+
+    header nav {
+      float: right;
+    }
+
+    header nav a {
+      margin-left: 20px;
+      color: white;
+      font-weight: bold;
+    }
+
+    /* Clearfix */
+    header::after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+
+    /* Hero */
+    .hero {
+      background: #4f46e5;
+      color: white;
+      padding: 4rem 0;
+      text-align: center;
+    }
+
+    .hero .btn {
+      background: #22c55e;
+      padding: 0.75rem 1.5rem;
+      margin-top: 1.5rem;
+      display: inline-block;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    /* Features */
+    .features {
+      padding: 3rem 0;
+      background: #fff;
+    }
+
+    .features h3 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .feature-grid {
+      display: flex;
+      gap: 2rem;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+
+    .feature {
+      background: #f1f5f9;
+      padding: 1.5rem;
+      border-radius: 8px;
+      flex: 1 1 250px;
+    }
+
+    /* Pricing */
+    .pricing {
+      padding: 3rem 0;
+      background: #eef2ff;
+      text-align: center;
+    }
+
+    .price-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      display: inline-block;
+      max-width: 400px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .price-card ul {
+      list-style: none;
+      margin-top: 1rem;
+      text-align: left;
+    }
+
+    .price-card ul li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* CTA */
+    .cta {
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding: 3rem 0;
+    }
+
+    .cta .btn {
+      background: #3b82f6;
+      padding: 0.75rem 1.5rem;
+      border-radius: 5px;
+      margin-top: 1rem;
+      display: inline-block;
+    }
+
+    /* Footer */
+    footer {
+      background: #1e293b;
+      color: white;
+      text-align: center;
+      padding: 1rem 0;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Freelancer Portal</h1>
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#cta">Get Started</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h2>Simple Invoicing & Client Portals for Freelancers</h2>
+      <p>Send invoices, track payments, and manage client deliverables — all in one place.</p>
+      <a href="#cta" class="btn">Get Started Free</a>
+    </div>
+  </section>
+
+  <section id="features" class="features">
+    <div class="container">
+      <h3>What You Get</h3>
+      <div class="feature-grid">
+        <div class="feature">
+          <h4>📄 Branded Invoices</h4>
+          <p>Create and send custom invoices with your logo and colors.</p>
+        </div>
+        <div class="feature">
+          <h4>💬 Client Portal</h4>
+          <p>Each client gets their own mini dashboard to view invoices & deliverables.</p>
+        </div>
+        <div class="feature">
+          <h4>📦 File Sharing</h4>
+          <p>Securely share PDFs, design files, and reports with your clients.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" class="pricing">
+    <div class="container">
+      <h3>Pricing</h3>
+      <div class="price-card">
+        <h4>Pro Plan</h4>
+        <p>$9/month</p>
+        <ul>
+          <li>Unlimited Clients</li>
+          <li>Branded Invoices</li>
+          <li>Secure File Sharing</li>
+          <li>Client Dashboards</li>
+        </ul>
+        <a href="#cta" class="btn">Start Free Trial</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="cta" class="cta">
+    <div class="container">
+      <h3>Ready to Simplify Your Freelance Workflow?</h3>
+      <a href="#" class="btn">Sign Up Free</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Freelancer Portal. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>

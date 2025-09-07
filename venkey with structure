@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Campus Smart Hub — Energy / Attendance / Notices</title>
+  
+  <style>
+    body {font-family:sans-serif;margin:0;padding:0;color:#333;}
+    nav {background:#065; padding:0.5em; color:white; display:flex;}
+    nav button {background:transparent;color:white;border:none;padding:0.5em 1em;font-size:1em;cursor:pointer;}
+    nav button:hover, nav button.active {background:#0a8;}
+    .tab {display:none;padding:1em;}
+    .tab.active {display:block;}
+    .panel {background:#f0f0f0;padding:1em;margin-bottom:1em;border-radius:6px;}
+    .panel h2 {margin-top:0;}
+    table {width:100%;border:1px solid #bbb;border-collapse:collapse;margin:8px 0;}
+    th,td {border:1px solid #ccc;padding:0.4em;text-align:center;}
+    .switch {position:relative;display:inline-block;width:40px;height:20px;}
+    .switch input{opacity:0;width:0;height:0;}
+    .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:20px;}
+    .slider:before{position:absolute;content:"";height:14px;width:14px;background:white;left:3px;bottom:3px;border-radius:50%;transition:.2s;}
+    input:checked + .slider{background:#6c6;}
+    input:checked + .slider:before{transform:translateX(20px);}
+    button{padding:0.5em 1em;margin:0.2em 0.1em;border:none;background:rgba(0, 126, 204, 0.753);color:#fff;border-radius:4px;cursor:pointer;}
+    input,select{padding:0.4em;margin:0.1em 0 0.5em;border:1px solid #aaa;border-radius:4px;width:100%;}
+    .notice {padding:0.6em;border-bottom:1px solid #ddd;}
+    #msgBoard {resize:none;width:100%;height:80px;}
+  </style>
+
+</head>
+<body>
+
+<nav>
+  <button class="tab-btn active" data-tab="energy">Energy</button>
+  <button class="tab-btn" data-tab="attendance">Attendance</button>
+  <button class="tab-btn" data-tab="labs">Lab Usage</button>
+  <button class="tab-btn" data-tab="notices">Noticeboard</button>
+  <button class="tab-btn" data-tab="msgs">Broadcast</button>
+</nav>
+
+<!-- power Management Tab -->
+<div id="power" class="tab active">
+  <div class="panel">
+    <h2>Automated Energy Control</h2>
+    <p><em>(Simulating occupancy sensor & PIR-based auto-off logic)</em></p>
+    <table id="energyTable">
+      <tr><th>Room / Hostel</th><th>Lights</th><th>Fan</th><th>AC</th><th>Occupancy</th></tr>
+    </table>
+    <button onclick="toggleAll('off')">Turn Everything Off</button>
+    <button onclick="toggleAll('on')">Turn Everything On</button>
+  </div>
+</div>
+
+<!-- Attendance Tab -->
+<div id="attendance" class="tab">
+  <div class="panel">
+    <h2>Smart Attendance (RFID / QR / Biometric)<br><small>(Teachers click to mark or simulate swipe)</small></h2>
+    <form id="attForm">
+      <select id="classSelect">
+        <option value="CSE‑101">CSE-101</option>
+        <option value="EEE‑202">EEE-202</option>
+        <option value="Mech‑303">Mech-303</option>
+        <option value="ece-404">ECE-404</option>     
+      </select>
+      <button type="submit">Load Students</button>
+    </form>
+    <table id="attTable">
+      <tr><th>Register No.</th><th>Name</th><th>Status</th><th>Action</th></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Lab Usage Tab -->
+<div id="labs" class="tab">
+  <div class="panel">
+    <h2>Lab Usage Schedule / Occupancy</h2>
+    <table id="labSchedule">
+      <tr><th>Lab</th><th>Booked By</th><th>Time Slot</th><th>Status</th></tr>
+      <tr><td>Embedded Lab</td><td>–</td><td>–</td><td>Free</td></tr>
+      <tr><td>Power Electronics</td><td>Team Alpha</td><td>10:00–12:00</td><td>Occupied</td></tr>
+    </table>
+    <form id="labForm">
+      <select id="labSelect">
+        <option>Embedded Lab</option><option>Power Electronics</option><option>Control Systems Lab</option>
+      </select><input type="text" id="labUser" placeholder="Group or Student Name"/>
+      <input type="time" id="startTime"/> to <input type="time" id="endTime"/>
+      <button type="submit">Book Room</button>
+    </form>
+  </div>
+</div>
+
+<!-- Noticeboard Tab -->
+<div id="notices" class="tab">
+  <div class="panel">
+    <h2>Digital Noticeboard</h2>
+    <div id="noticeList"></div>
+    <input type="text" id="noticeTitle" placeholder="Title"/>
+    <textarea id="noticeBody" rows="2" placeholder="Notice details"></textarea><br>
+    <button onclick="addNotice()">Post Notice</button>
+  </div>
+</div>
+
+<!-- Messaging Tab -->
+<div id="msgs" class="tab">
+  <div class="panel">
+    <h2>Broadcast Messages</h2>
+    <textarea id="msgBoard" placeholder="Type notice or emergency broadcast..."></textarea><br>
+    <button onclick="sendBroadcast()">Send to Everyone</button>
+    <div id="msgLog"><strong>Sent Messages:</strong></div>
+  </div>
+</div>
+
+<script>
+// ---------- Tab Navigation ----------
+document.querySelectorAll('.tab-btn').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(b.dataset.tab).classList.add('active');
+  };
+});
+
+// ---------- Energy Management Simulator ----------
+const rooms = [
+  { name:'Room-101', light:true, fan:true, ac:false },
+  { name:'Mess-Hall', light:true, fan:false, ac:true },
+  { name:'Common-Room', light:true, fan:true, ac:true }
+];
+function refreshEnergy(){
+  const table = document.getElementById('energyTable');
+  table.innerHTML = '<tr><th>Room / Hostel</th><th>Lights</th><th>Fan</th><th>AC</th><th>Occupancy</th></tr>';
+  rooms.forEach((r,i) => {
+    const occ = (Math.random()<0.5);
+    const row = table.insertRow();
+    function cell(h) {return row.insertCell();}
+    cell(r.name);
+    ['light','fan','ac'].forEach(dev => {
+      const td = cell();
+      td.innerHTML = `<label class="switch">
+        <input type="checkbox" data-ro="${i}" data-dev="${dev}" ${r[dev]?'checked':''}>
+        <span class="slider"></span></label>`;
+      td.firstElementChild.onchange = e => {
+        rooms[e.target.dataset.ro][e.target.dataset.dev] = e.target.checked;
+      };
+    });
+    cell(occ?'Yes':'No');
+  });
+}
+function toggleAll(onoff){
+  rooms.forEach(r => { r.light = r.fan = r.ac = (onoff==='on') });
+  refreshEnergy();
+}
+setInterval(() => {
+  // simulate PIR auto-off: if occupancy false → turn off light/fan
+  rooms.forEach(r => {
+    if (!Math.random() < 0.5) { r.light=false; r.fan=false; }
+  }); // simulate
+  refreshEnergy();
+}, 15000);
+refreshEnergy();
+
+// ---------- Attendance ----------
+const studentDB = {
+  'CSE-101': [{r:'CSE2001',n:'pranav'},{r:'CSE2002',n:'carrey'}],
+  'EEE-202': [{r:'EEE2101',n:'ranjith'},{r:'EEE2102',n:'chenna'}],
+  'Mech-303': [{r:'Mech3301',n:'manoj'},{r:'Mech3302',n:'madhu'}],
+  'ECE-404': [{r:'ece489',n:'venkat'},{r:'pranav496',n:'simha'}]
+  
+};
+document.getElementById('attForm').onsubmit = e => {
+  e.preventDefault();
+  const cls = document.getElementById('classSelect').value;
+  const arr = studentDB[cls]||[];
+  const tbl = document.getElementById('attTable');
+  tbl.innerHTML = '<tr><th>Register No.</th><th>Name</th><th>Status</th><th>Action</th></tr>';
+  arr.forEach(s => {
+    const tr = tbl.insertRow();
+    tr.insertCell().innerText = s.r;
+    tr.insertCell().innerText = s.n;
+    const status = tr.insertCell(); status.innerText = '—';
+    const btn = tr.insertCell().appendChild(document.createElement('button'));
+    btn.innerText = 'Mark Present';
+    btn.onclick = () => { status.innerText = 'Present'; btn.disabled=true; };
+  });
+};
+
+// ---------- Lab Booking ----------
+document.getElementById('labForm').onsubmit = e => {
+  e.preventDefault();
+  const lab = document.getElementById('labSelect').value;
+  const user = document.getElementById('labUser').value.trim();
+  const st = document.getElementById('startTime').value;
+  const et = document.getElementById('endTime').value;
+  if (!user || !st || !et) return alert('Complete all fields');
+  const tbl = document.getElementById('labSchedule');
+  const tr = tbl.insertRow();
+  tr.insertCell().innerText = lab;
+  tr.insertCell().innerText = user;
+  tr.insertCell().innerText = `${st}–${et}`;
+  tr.insertCell().innerText = 'Occupied';
+  document.getElementById('labUser').value=''
+}
+
+// ---------- Noticeboard ----------
+function addNotice(){
+  const title = document.getElementById('noticeTitle').value.trim();
+  const body = document.getElementById('noticeBody').value.trim();
+  if(!title||!body)return alert('Enter title & body');
+  const div = document.createElement('div'); div.className='notice';
+  div.innerHTML = `<strong>${title}</strong><br>${body}<br><small>${new Date().toLocaleString()}</small>`;
+  document.getElementById('noticeList').prepend(div);
+  document.getElementById('noticeTitle').value='';
+  document.getElementById('noticeBody').value='';
+}
+
+// ---------- Broadcast Messaging ----------
+function sendBroadcast(){
+  const txt = document.getElementById('msgBoard').value.trim();
+  if(!txt)return;
+  const log = document.getElementById('msgLog');
+  const p = document.createElement('div'); p.innerHTML = `<em>${new Date().toLocaleTimeString()}:</em> ${txt}`;
+  log.appendChild(p);
+  document.getElementById('msgBoard').value='';
+}
+</script>
+
+</body>
+</html>
